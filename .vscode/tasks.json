@@ -1,0 +1,60 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "typescript",
+            "tsconfig": "tsconfig.json",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": "build",
+        },
+        {
+            "label": "Browserify",
+            "type": "shell",
+            "command": "browserify ${workspaceFolder}/js/out/app.js -o ${workspaceFolder}/js/app.js",
+            "windows": {
+                "command": ""
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Firefox",
+            "type": "shell",
+            "command": "firefox ${workspaceFolder}/index.html",
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "Chrome",
+            "type": "shell",
+            "linux":{
+                "command": "google-chrome-stable ${workspaceFolder}/index.html",
+            },
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "Webpack",
+            "type": "shell",
+            "command": "npm run build", 
+            "windows": {
+                "command": ""
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        }        
+    ]
+}
