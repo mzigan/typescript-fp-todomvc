@@ -1,7 +1,7 @@
 import { EVENT, KEY, STR, CONST } from './const'
 import { on, getId } from './utl'
 import { TodoList, Main, TodoItem, Footer } from './view'
-import { iTodoItem } from './interface'
+import { iTodoItem, iController } from './interface'
 
 export function Controller(): void {
     const ictrl = {
@@ -13,7 +13,7 @@ export function Controller(): void {
         toggleTodo,
         keyupTodo,
         editTodo
-    }
+    } as iController;
 
     const main = Main(ictrl);
     const list = TodoList(ictrl);

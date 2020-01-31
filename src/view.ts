@@ -3,7 +3,6 @@ import { Factory, on, delegate, $, uuid, dot } from './utl'
 import { iController, iTodoList, iMain, iTodoItem, iFooter } from './interface'
 
 export function TodoItem(list: HTMLUListElement, text: string, checked: boolean): iTodoItem {
-
     const id = uuid();
     const element = Factory.li(list, id);
     const view = Factory.div(element, CLASS.VIEW);
@@ -53,7 +52,7 @@ export function TodoItem(list: HTMLUListElement, text: string, checked: boolean)
         edit,
         cancel,
         render
-    }
+    } as iTodoItem;
 }
 
 export function TodoList(app: iController): iTodoList {
@@ -71,7 +70,7 @@ export function TodoList(app: iController): iTodoList {
     return {
         element,
         newTodo
-    }
+    } as iTodoList;
 }
 
 export function Main(app: iController): iMain {
@@ -88,7 +87,7 @@ export function Main(app: iController): iMain {
     return {
         toggleAll,
         render
-    }
+    } as iMain;
 }
 
 export function Footer(app: iController): iFooter {
@@ -122,5 +121,5 @@ export function Footer(app: iController): iFooter {
 
     return {
         render
-    }
+    } as iFooter;
 }
