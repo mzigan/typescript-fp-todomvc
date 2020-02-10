@@ -21,8 +21,6 @@ const storage_1 = require("./storage");
 const header_1 = require("./header");
 const main_1 = require("./main");
 const footer_1 = require("./footer");
-//type EventHandler = (params: any) => void
-//---
 function Controller() {
     const handlerMap = new Map();
     //---
@@ -55,127 +53,6 @@ function Controller() {
         //---
         h.forEach(handler => { handler(params); });
     }
-    // const main = Main(ictrl);
-    // const list = TodoList(ictrl);
-    // const footer = Footer(ictrl);
-    // const items = Array<iTodoItem>();
-    // on(document, EVENT.CONTENT_LOADED, (e) => load());
-    // on(window, EVENT.HASHCHANGE, (e) => render());
-    // function indexOf(e: EventTarget | null): number {
-    //     const id = getId(e);
-    //     let res = -1;
-    //     let i = items.length;
-    //     while (id && i--) {
-    //         if (items[i].id == id) {
-    //             res = i;
-    //             break;
-    //         }
-    //     }
-    //     return res;
-    // }
-    // function getItem(e: EventTarget | HTMLElement | null): iTodoItem | null {
-    //     const index = indexOf(e);
-    //     if (index > -1)
-    //         return items[index];
-    //     else
-    //         return null;
-    // }
-    // function del(index: number) {
-    //     items[index].element.remove();
-    //     items.splice(index, 1);
-    // }
-    // function add(text: string, checked: boolean) {
-    //     items.push(TodoItem(list.element, text, checked));
-    // }
-    // function load() {
-    //     const json = localStorage.getItem(CONST.STORAGEKEY);
-    //     if (json) {
-    //         const obj = JSON.parse(json);
-    //         for (const p in obj) {
-    //             if (obj.hasOwnProperty(p))
-    //                 add(obj[p].name, obj[p].checked);
-    //         }
-    //     }
-    //     render();
-    // }
-    // function save() {
-    //     const obj: { [index: number]: { checked: boolean, name: string | null } } = {};
-    //     for (const key in items) {
-    //         const e = items[key];
-    //         obj[key] = { checked: e.toggle.checked, name: e.label.textContent };
-    //     }
-    //     localStorage.setItem(CONST.STORAGEKEY, JSON.stringify(obj));
-    //     render();
-    // }
-    // function render() {
-    //     const allCount = items.length;
-    //     let activeCount = 0;
-    //     items.forEach(e => { if (!e.toggle.checked) activeCount++; });
-    //     // list
-    //     items.forEach(e => e.render());
-    //     // main
-    //     main.render(activeCount, allCount);
-    //     // footer
-    //     footer.render(activeCount, allCount);
-    // }
-    // function addTodo(e: Event) {
-    //     if (e instanceof KeyboardEvent && e.keyCode != KEY.ENTER)
-    //         return;
-    //     let val = list.newTodo.value.trim();
-    //     if (val) {
-    //         add(val, false);
-    //         list.newTodo.value = STR.EMPTY;
-    //         save();
-    //     }
-    // }
-    // function delTodo(e: Event) {
-    //     const index = indexOf(e.target);
-    //     if (index > -1) {
-    //         del(index);
-    //         save();
-    //     }
-    // }
-    // function focusoutTodo(e: Event) {
-    //     const item = getItem(e.target);
-    //     if (item) {
-    //         item.update();
-    //         save();
-    //     }
-    // }
-    // function toggleTodo() {
-    //     save();
-    // }
-    // function keyupTodo(e: Event) {
-    //     const item = getItem(e.target);
-    //     if (item && e instanceof KeyboardEvent) {
-    //         if (e.keyCode == KEY.ENTER) {
-    //             if (item.editor.value.trim())
-    //                 item.update();
-    //             else
-    //                 delTodo(e);
-    //             save();
-    //         } else if (e.keyCode == KEY.ESC)
-    //             item.cancel();
-    //     }
-    // }
-    // function editTodo(e: Event) {
-    //     const item = getItem(e.target);
-    //     if (item)
-    //         item.edit();
-    // }
-    // function clearCompleted(e: Event) {
-    //     let n = 0;
-    //     const cnt = items.length;
-    //     for (let i = 0; i < cnt; i++) {
-    //         const e = items[n];
-    //         (e.toggle.checked) ? del(n) : n++;
-    //     }
-    //     save();
-    // }
-    // function toggleAll(e: Event) {
-    //     items.forEach(e => { e.toggle.checked = main.toggleAll.checked; });
-    //     save();
-    // }
 }
 exports.Controller = Controller;
 
@@ -192,14 +69,9 @@ function Footer(app) {
     const activeFilter = utl_1.$(const_1.SELECTOR.HREF_ACTIVE).get();
     const completedFilter = utl_1.$(const_1.SELECTOR.HREF_COMPLETED).get();
     //---
-    utl_1.on(clearCompleted, "click" /* CLICK */, click.bind(this));
-    app.on("storage" /* STORAGE */, render);
+    utl_1.on(clearCompleted, "click" /* CLICK */, () => app.emit("clear-completed" /* CLEAR_COMPLETED */));
     //---
-    function click(e) {
-        app.emit("clear-completed" /* CLEAR_COMPLETED */);
-    }
-    //---
-    function render(items) {
+    app.on("storage" /* STORAGE */, (items) => {
         let activeCount = 0;
         let allCount = 0;
         //---
@@ -230,7 +102,7 @@ function Footer(app) {
         (allCount - activeCount > 0) ? utl_1.$(clearCompleted).removeClass("hidden" /* HIDDEN */) : utl_1.$(clearCompleted).addClass("hidden" /* HIDDEN */);
         // footer
         (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
-    }
+    });
 }
 exports.Footer = Footer;
 
@@ -241,14 +113,13 @@ const utl_1 = require("./utl");
 function Header(app) {
     const newTodo = utl_1.$(utl_1.dot("new-todo" /* NEWTODO */)).get();
     //---
-    utl_1.on(newTodo, "keyup" /* KEY_UP */, keyUp);
     utl_1.on(newTodo, "focusout" /* FOCUSOUT */, addTodo);
     //---
-    function keyUp(e) {
+    utl_1.on(newTodo, "keyup" /* KEY_UP */, (e) => {
         if (e.keyCode != 13 /* ENTER */)
             return;
         addTodo();
-    }
+    });
     //---
     function addTodo() {
         const val = newTodo.value.trim();
@@ -269,14 +140,8 @@ function Main(app) {
     const toggleCheckbox = utl_1.$(utl_1.dot("toggle-all" /* TOGGLEALL */)).get();
     //---
     todolist_1.Todolist(app);
-    utl_1.on(toggleCheckbox, "change" /* CHANGE */, toggleAll);
-    app.on("storage" /* STORAGE */, render);
-    //---
-    function toggleAll(e) {
-        app.emit("toggle-all" /* TOGGLE_ALL */);
-    }
-    //---
-    function render(items) {
+    utl_1.on(toggleCheckbox, "change" /* CHANGE */, () => app.emit("toggle-all" /* TOGGLE_ALL */));
+    app.on("storage" /* STORAGE */, (items) => {
         let activeCount = 0;
         let allCount = 0;
         //---
@@ -288,7 +153,7 @@ function Main(app) {
         //---
         (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
         toggleCheckbox.checked = allCount > 0 && activeCount == 0;
-    }
+    });
 }
 exports.Main = Main;
 
@@ -299,30 +164,31 @@ const utl_1 = require("./utl");
 function Storage(app) {
     let items = {};
     //---
-    utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, onLoad);
-    utl_1.on(window, "hashchange" /* HASHCHANGE */, hashcange);
-    app.on("update" /* UPDATE */, updateTodo);
-    app.on("del" /* DEL */, delTodo);
-    app.on("toggle" /* TOGGLE */, toggleTodo);
-    app.on("toggle-all" /* TOGGLE_ALL */, toggleAll);
-    app.on("clear-completed" /* CLEAR_COMPLETED */, clearCompleted);
+    utl_1.on(window, "hashchange" /* HASHCHANGE */, () => app.emit("storage" /* STORAGE */, items));
     //---
-    function updateTodo(e) {
+    utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, () => {
+        const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
+        if (json)
+            items = JSON.parse(json);
+        app.emit("storage" /* STORAGE */, items);
+    });
+    //---
+    app.on("update" /* UPDATE */, (e) => {
         items[e.id] = { check: e.check, title: e.title };
         save();
-    }
+    });
     //---
-    function delTodo(id) {
+    app.on("del" /* DEL */, (id) => {
         delete items[id];
         save();
-    }
+    });
     //---
-    function toggleTodo(id) {
+    app.on("toggle" /* TOGGLE */, (id) => {
         items[id].check = !items[id].check;
         save();
-    }
+    });
     //---
-    function toggleAll() {
+    app.on("toggle-all" /* TOGGLE_ALL */, () => {
         let check = true;
         for (const p in items) {
             check = check && items[p].check;
@@ -331,29 +197,18 @@ function Storage(app) {
             items[p].check = !check;
         }
         save();
-    }
+    });
     //---
-    function clearCompleted() {
+    app.on("clear-completed" /* CLEAR_COMPLETED */, () => {
         for (const p in items) {
             if (items[p].check)
                 delete items[p];
         }
         save();
-    }
-    //---
-    function onLoad() {
-        const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
-        if (json)
-            items = JSON.parse(json);
-        app.emit("storage" /* STORAGE */, items);
-    }
+    });
     //---
     function save() {
         localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));
-        app.emit("storage" /* STORAGE */, items);
-    }
-    //---
-    function hashcange() {
         app.emit("storage" /* STORAGE */, items);
     }
 }
@@ -371,35 +226,25 @@ function Todo(app, list, title, check, id) {
     const destroy = utl_1.Factory.button(view, "destroy" /* DESTROY */);
     const editor = utl_1.Factory.editor(element, "edit" /* EDIT */);
     //---
-    utl_1.on(label, "dblclick" /* DBL_CLICK */, editTodo);
     utl_1.on(editor, "focusout" /* FOCUSOUT */, updateTodo);
-    utl_1.on(editor, "keyup" /* KEY_UP */, keyup);
-    utl_1.on(destroy, "click" /* CLICK */, delTodo);
-    utl_1.on(toggle, "change" /* CHANGE */, toggleTodo);
+    utl_1.on(destroy, "click" /* CLICK */, () => app.emit("del" /* DEL */, id));
+    utl_1.on(toggle, "change" /* CHANGE */, () => app.emit("toggle" /* TOGGLE */, id));
     //---
-    function keyup(e) {
+    utl_1.on(editor, "keyup" /* KEY_UP */, (e) => {
         if (e.keyCode == 27 /* ESC */) {
             utl_1.$(element).removeClass("editing" /* EDITING */);
         }
         else if (e.keyCode == 13 /* ENTER */)
             updateTodo();
-    }
+    });
     //---
-    function toggleTodo() {
-        app.emit("toggle" /* TOGGLE */, id);
-    }
-    //---
-    function delTodo() {
-        app.emit("del" /* DEL */, id);
-    }
-    //---
-    function editTodo() {
+    utl_1.on(label, "dblclick" /* DBL_CLICK */, () => {
         editor.value = "" /* EMPTY */;
         if (label.textContent)
             editor.value = label.textContent;
         utl_1.$(element).addClass("editing" /* EDITING */);
         editor.focus();
-    }
+    });
     //---
     function updateTodo() {
         if (editor.value.trim()) {
@@ -412,9 +257,7 @@ function Todo(app, list, title, check, id) {
 function Todolist(app) {
     const element = utl_1.$(utl_1.dot("todo-list" /* TODOLIST */)).get();
     //---
-    app.on("storage" /* STORAGE */, render);
-    //---
-    function render(items) {
+    app.on("storage" /* STORAGE */, (items) => {
         element.innerHTML = "" /* EMPTY */;
         for (const p in items) {
             switch (window.location.hash) {
@@ -430,7 +273,7 @@ function Todolist(app) {
                     Todo(app, element, items[p].title, items[p].check, p);
             }
         }
-    }
+    });
 }
 exports.Todolist = Todolist;
 
@@ -621,14 +464,14 @@ function dot(cls) {
 exports.dot = dot;
 // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
 const s = new Array();
-for (var i = 0; i < 256; i++) {
+for (let i = 0; i < 256; i++) {
     s[i] = (i < 16 ? '0' : '') + (i).toString(16);
 }
 function uuid() {
-    var d0 = Math.random() * 0xffffffff | 0;
-    var d1 = Math.random() * 0xffffffff | 0;
-    var d2 = Math.random() * 0xffffffff | 0;
-    var d3 = Math.random() * 0xffffffff | 0;
+    let d0 = Math.random() * 0xffffffff | 0;
+    let d1 = Math.random() * 0xffffffff | 0;
+    let d2 = Math.random() * 0xffffffff | 0;
+    let d3 = Math.random() * 0xffffffff | 0;
     return s[d0 & 0xff] + s[d0 >> 8 & 0xff] + s[d0 >> 16 & 0xff] + s[d0 >> 24 & 0xff] + '-' +
         s[d1 & 0xff] + s[d1 >> 8 & 0xff] + '-' +
         s[d1 >> 16 & 0x0f | 0x40] + s[d1 >> 24 & 0xff] + '-' +

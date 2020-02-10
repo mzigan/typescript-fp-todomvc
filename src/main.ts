@@ -1,21 +1,15 @@
-import { iController, iTodoItem, iItem } from './interface'
-import { Factory, on, delegate, $, uuid, dot } from './utl'
-import { CLASS, CHANGE, STORAGE, KEY, STR, CONST, EVENT } from './const'
-import { Todolist } from './todolist';
+import { iController, iItem } from './interface'
+import { on, $, dot } from './utl'
+import { CLASS, CHANGE, STORAGE, EVENT } from './const'
+import { Todolist } from './todolist'
 
 export function Main(app: iController) {
-    const element = $(dot(CLASS.MAIN)).get() as HTMLElement;
-    const toggleCheckbox = $(dot(CLASS.TOGGLEALL)).get() as HTMLInputElement;
+    const element = $(dot(CLASS.MAIN)).get() as HTMLElement
+    const toggleCheckbox = $(dot(CLASS.TOGGLEALL)).get() as HTMLInputElement
     //---
     Todolist(app)
-    on(toggleCheckbox, EVENT.CHANGE, toggleAll)
-    app.on(CHANGE.STORAGE, render)
-    //---
-    function toggleAll(e: Event) {
-        app.emit(STORAGE.TOGGLE_ALL)
-    }
-    //---
-    function render(items: iItem) {
+    on(toggleCheckbox, EVENT.CHANGE, () => app.emit(STORAGE.TOGGLE_ALL))
+    app.on(CHANGE.STORAGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---
@@ -27,5 +21,5 @@ export function Main(app: iController) {
         //---
         (allCount > 0) ? $(element).removeClass(CLASS.HIDDEN) : $(element).addClass(CLASS.HIDDEN)
         toggleCheckbox.checked = allCount > 0 && activeCount == 0
-    }
+    })
 }

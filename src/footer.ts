@@ -1,6 +1,6 @@
-import { iController, iTodoItem, iFooter, iItem } from './interface'
-import { Factory, on, delegate, $, uuid, dot } from './utl'
-import { SELECTOR, CLASS, CHANGE, STORAGE, KEY, STR, CONST, EVENT, TAG, TPL, HASH } from './const'
+import { iController, iItem } from './interface'
+import { on, $, dot } from './utl'
+import { SELECTOR, CLASS, CHANGE, STORAGE, EVENT, TAG, TPL, HASH } from './const'
 
 export function Footer(this: any, app: iController) {
     const element = $(dot(CLASS.FOOTER)).get() as HTMLElement
@@ -10,14 +10,9 @@ export function Footer(this: any, app: iController) {
     const activeFilter = $(SELECTOR.HREF_ACTIVE).get() as HTMLHRElement
     const completedFilter = $(SELECTOR.HREF_COMPLETED).get() as HTMLHRElement
     //---
-    on(clearCompleted, EVENT.CLICK, click.bind(this))
-    app.on(CHANGE.STORAGE, render)
+    on(clearCompleted, EVENT.CLICK, () => app.emit(STORAGE.CLEAR_COMPLETED))
     //---
-    function click(this: any, e: Event) {
-        app.emit(STORAGE.CLEAR_COMPLETED)
-    }
-    //---
-    function render(items: iItem) {
+    app.on(CHANGE.STORAGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---
@@ -34,13 +29,19 @@ export function Footer(this: any, app: iController) {
         // filter
         $(TAG.A).removeClass(CLASS.SELECTED)
         switch (window.location.hash) {
-            case HASH.ACTIVE: $(activeFilter).addClass(CLASS.SELECTED); break
-            case HASH.COMPLETED: $(completedFilter).addClass(CLASS.SELECTED); break
-            default: $(allFilter).addClass(CLASS.SELECTED); break
+            case HASH.ACTIVE:
+                $(activeFilter).addClass(CLASS.SELECTED)
+                break
+            case HASH.COMPLETED:
+                $(completedFilter).addClass(CLASS.SELECTED)
+                break
+            default:
+                $(allFilter).addClass(CLASS.SELECTED)
+                break
         }
         // clear completed
         (allCount - activeCount > 0) ? $(clearCompleted).removeClass(CLASS.HIDDEN) : $(clearCompleted).addClass(CLASS.HIDDEN);
         // footer
         (allCount > 0) ? $(element).removeClass(CLASS.HIDDEN) : $(element).addClass(CLASS.HIDDEN)
-    }
+    })
 }

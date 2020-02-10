@@ -1,6 +1,6 @@
-import { iController, iTodoItem, iItem } from './interface'
-import { Factory, on, delegate, $, uuid, dot } from './utl'
-import { CLASS, CHANGE, STORAGE, TAG, KEY, STR, CONST, EVENT, HASH } from './const'
+import { iController, iItem } from './interface'
+import { Factory, on, $, dot } from './utl'
+import { CLASS, CHANGE, STORAGE, KEY, STR, EVENT, HASH } from './const'
 
 function Todo(app: iController, list: HTMLUListElement, title: string, check: boolean, id: string) {
     const element = Factory.li(list, id)
@@ -10,34 +10,24 @@ function Todo(app: iController, list: HTMLUListElement, title: string, check: bo
     const destroy = Factory.button(view, CLASS.DESTROY)
     const editor = Factory.editor(element, CLASS.EDIT)
     //---
-    on(label, EVENT.DBL_CLICK, editTodo)
     on(editor, EVENT.FOCUSOUT, updateTodo)
-    on(editor, EVENT.KEY_UP, keyup)
-    on(destroy, EVENT.CLICK, delTodo)
-    on(toggle, EVENT.CHANGE, toggleTodo)
+    on(destroy, EVENT.CLICK, () => app.emit(STORAGE.DEL, id))
+    on(toggle, EVENT.CHANGE, () => app.emit(STORAGE.TOGGLE, id))
     //---
-    function keyup(e: Event) {
+    on(editor, EVENT.KEY_UP, (e: Event) => {
         if ((e as KeyboardEvent).keyCode == KEY.ESC) {
             $(element).removeClass(CLASS.EDITING)
         } else if ((e as KeyboardEvent).keyCode == KEY.ENTER)
             updateTodo()
-    }
+    })
     //---
-    function toggleTodo() {
-        app.emit(STORAGE.TOGGLE, id)
-    }
-    //---
-    function delTodo() {
-        app.emit(STORAGE.DEL, id)
-    }
-    //---
-    function editTodo() {
+    on(label, EVENT.DBL_CLICK, () => {
         editor.value = STR.EMPTY
         if (label.textContent)
             editor.value = label.textContent
         $(element).addClass(CLASS.EDITING)
         editor.focus()
-    }
+    })
     //---
     function updateTodo() {
         if (editor.value.trim()) {
@@ -51,9 +41,7 @@ function Todo(app: iController, list: HTMLUListElement, title: string, check: bo
 export function Todolist(this: any, app: iController) {
     const element = $(dot(CLASS.TODOLIST)).get() as HTMLUListElement
     //---
-    app.on(CHANGE.STORAGE, render)
-    //---
-    function render(items: iItem) {
+    app.on(CHANGE.STORAGE, (items: iItem) => {
         element.innerHTML = STR.EMPTY
         for (const p in items) {
             switch (window.location.hash) {
@@ -64,8 +52,8 @@ export function Todolist(this: any, app: iController) {
                     if (items[p].check) Todo(app, element, items[p].title, items[p].check, p)
                     break
                 default:
-                    Todo(app, element, items[p].title, items[p].check, p)            
+                    Todo(app, element, items[p].title, items[p].check, p)
             }
         }
-    }
+    })
 }

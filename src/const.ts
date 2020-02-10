@@ -18,7 +18,6 @@ export const enum CLASS {
 }
 
 export const enum STORAGE {
-    //ADD = 'add',
     TOGGLE_ALL = 'toggle-all',
     UPDATE = 'update',
     DEL = 'del',

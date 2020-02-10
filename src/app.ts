@@ -1,3 +1,3 @@
-import { Controller } from "./ctrl";
+import { Controller } from "./ctrl"
 
-Controller();
+Controller()
