@@ -1,24 +1,33 @@
 export interface iController {
-    addTodo(e: Event): void;
-    toggleAll(e: Event): void;
-    clearCompleted(e: Event): void;
-    focusoutTodo(e: Event): void;
-    delTodo(e: Event): void;
-    toggleTodo(e: Event): void;
-    keyupTodo(e: Event): void;
-    editTodo(e: Event): void;
+    emit(action: string, params?: any): void
+    on(action: string, handler: Function): void
+    // addTodo(e: Event): void;
+    // toggleAll(e: Event): void;
+    // clearCompleted(e: Event): void;
+    // focusoutTodo(e: Event): void;
+    // delTodo(e: Event): void;
+    // toggleTodo(e: Event): void;
+    // keyupTodo(e: Event): void;
+    // editTodo(e: Event): void;
 }
 
 export interface iTodoItem {
-    readonly id: string;
-    readonly element: HTMLElement;
-    readonly toggle: HTMLInputElement
-    readonly label: HTMLElement;
-    readonly editor: HTMLInputElement;
-    update(): void,
+    // readonly id: string;
+    // readonly element: HTMLElement;
+    // readonly toggle: HTMLInputElement
+    // readonly label: HTMLElement;
+    // readonly editor: HTMLInputElement;
+    // update(): void,
     edit(): void,
-    cancel(): void,
-    render(): void;
+    // cancel(): void,
+    // render(): void;
+}
+
+export interface iItem {
+    [id: string]: {
+        check: boolean,
+        title: string
+    }
 }
 
 export interface iTodoList {

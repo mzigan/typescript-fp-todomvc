@@ -60,7 +60,29 @@ export function $(selector: Element | string, scope: Element | null = null) {
                 return this;
             elements.forEach(e => { toggleClass(e, cls); });
             return this;
-        }
+        },
+        closest(selector: string): Element | null {
+            if (elements instanceof Element) {
+                let e: any = elements;
+                while (e) {
+                    if (e.matches && e.matches(selector))
+                        return e;
+                    e = e.parentNode;
+                }
+                return null;
+            }
+            //---
+            if (elements.length == 0)
+                return null;
+            //---    
+            let e: any = elements[0];
+            while (e) {
+                if (e.matches && e.matches(selector))
+                    return e;
+                e = e.parentNode;
+            }
+            return null;
+        },
     }
 }
 
@@ -155,7 +177,7 @@ export class Factory {
         r.checked = checked;
         return r as HTMLInputElement;
     }
-    
+
     static label(parent: HTMLElement, cls: string, text: string = STR.EMPTY) {
         const r = Factory.createElement(TAG.LABEL, parent, cls);
         if (text) r.textContent = text;

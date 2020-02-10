@@ -17,11 +17,21 @@ export const enum CLASS {
     EMPTY = '',
 }
 
-export const enum CONST{
-    STORAGEKEY = 'todos_typescript',
+export const enum STORAGE {
+    ADD = 'add',
+    TOGGLE_ALL = 'toggle-all',
+    UPDATE = 'update',
 }
 
-export const enum KEY{
+export const enum CHANGE {
+    STORAGE = 'storage',
+}
+
+export const enum CONST {
+    STORAGEKEY = 'todos_typescript5',
+}
+
+export const enum KEY {
     TAB = 9,
     ENTER = 13,
     ESC = 27,
@@ -116,7 +126,7 @@ export const enum HASH {
     COMPLETED = '#/completed',
 }
 
-export const enum TPL{
+export const enum TPL {
     S1 = '<strong>',
     S2 = '</strong> item left',
     S3 = '</strong> items left',
@@ -124,7 +134,7 @@ export const enum TPL{
     P2 = '"]',
 }
 
-export class SELECTOR{
+export class SELECTOR {
     static HREF_ALL = `${TPL.P1}${HASH.ALL}${TPL.P2}`;
     static HREF_ACTIVE = `${TPL.P1}${HASH.ACTIVE}${TPL.P2}`;
     static HREF_COMPLETED = `${TPL.P1}${HASH.COMPLETED}${TPL.P2}`;

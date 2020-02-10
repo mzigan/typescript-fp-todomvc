@@ -17,146 +17,358 @@ exports.SELECTOR = SELECTOR;
 },{}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utl_1 = require("./utl");
-const view_1 = require("./view");
+const storage_1 = require("./storage");
+const header_1 = require("./header");
+const main_1 = require("./main");
+const footer_1 = require("./footer");
+//type EventHandler = (params: any) => void
+//---
 function Controller() {
+    const handlerMap = new Map();
+    //---
     const ictrl = {
-        addTodo,
-        toggleAll,
-        clearCompleted,
-        focusoutTodo,
-        delTodo,
-        toggleTodo,
-        keyupTodo,
-        editTodo
+        emit,
+        on,
     };
-    const main = view_1.Main(ictrl);
-    const list = view_1.TodoList(ictrl);
-    const footer = view_1.Footer(ictrl);
-    const items = Array();
-    utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, (e) => load());
-    utl_1.on(window, "hashchange" /* HASHCHANGE */, (e) => render());
-    function indexOf(e) {
-        const id = utl_1.getId(e);
-        let res = -1;
-        let i = items.length;
-        while (id && i--) {
-            if (items[i].id == id) {
-                res = i;
-                break;
-            }
+    //---
+    storage_1.Storage(ictrl);
+    header_1.Header(ictrl);
+    main_1.Main(ictrl);
+    footer_1.Footer(ictrl);
+    //---
+    function on(action, handler) {
+        const h = handlerMap.get(action);
+        //---
+        if (h)
+            h.push(handler);
+        else {
+            let a = [];
+            a.push(handler);
+            handlerMap.set(action, a);
         }
-        return res;
     }
-    function getItem(e) {
-        const index = indexOf(e);
-        if (index > -1)
-            return items[index];
-        else
-            return null;
-    }
-    function del(index) {
-        items[index].element.remove();
-        items.splice(index, 1);
-    }
-    function add(text, checked) {
-        items.push(view_1.TodoItem(list.element, text, checked));
-    }
-    function load() {
-        const json = localStorage.getItem("todos_typescript" /* STORAGEKEY */);
-        if (json) {
-            const obj = JSON.parse(json);
-            for (const p in obj) {
-                if (obj.hasOwnProperty(p))
-                    add(obj[p].name, obj[p].checked);
-            }
-        }
-        render();
-    }
-    function save() {
-        const obj = {};
-        for (const key in items) {
-            const e = items[key];
-            obj[key] = { checked: e.toggle.checked, name: e.label.textContent };
-        }
-        localStorage.setItem("todos_typescript" /* STORAGEKEY */, JSON.stringify(obj));
-        render();
-    }
-    function render() {
-        const allCount = items.length;
-        let activeCount = 0;
-        items.forEach(e => { if (!e.toggle.checked)
-            activeCount++; });
-        // list
-        items.forEach(e => e.render());
-        // main
-        main.render(activeCount, allCount);
-        // footer
-        footer.render(activeCount, allCount);
-    }
-    function addTodo(e) {
-        if (e instanceof KeyboardEvent && e.keyCode != 13 /* ENTER */)
+    //---
+    function emit(action, params) {
+        const h = handlerMap.get(action);
+        if (!h)
             return;
-        let val = list.newTodo.value.trim();
-        if (val) {
-            add(val, false);
-            list.newTodo.value = "" /* EMPTY */;
-            save();
-        }
+        //---
+        h.forEach(handler => { handler(params); });
     }
-    function delTodo(e) {
-        const index = indexOf(e.target);
-        if (index > -1) {
-            del(index);
-            save();
-        }
-    }
-    function focusoutTodo(e) {
-        const item = getItem(e.target);
-        if (item) {
-            item.update();
-            save();
-        }
-    }
-    function toggleTodo() {
-        save();
-    }
-    function keyupTodo(e) {
-        const item = getItem(e.target);
-        if (item && e instanceof KeyboardEvent) {
-            if (e.keyCode == 13 /* ENTER */) {
-                if (item.editor.value.trim())
-                    item.update();
-                else
-                    delTodo(e);
-                save();
-            }
-            else if (e.keyCode == 27 /* ESC */)
-                item.cancel();
-        }
-    }
-    function editTodo(e) {
-        const item = getItem(e.target);
-        if (item)
-            item.edit();
-    }
-    function clearCompleted(e) {
-        let n = 0;
-        const cnt = items.length;
-        for (let i = 0; i < cnt; i++) {
-            const e = items[n];
-            (e.toggle.checked) ? del(n) : n++;
-        }
-        save();
-    }
-    function toggleAll(e) {
-        items.forEach(e => { e.toggle.checked = main.toggleAll.checked; });
-        save();
-    }
+    //const main = Main(ictrl);
+    // const list = TodoList(ictrl);
+    // const footer = Footer(ictrl);
+    // const items = Array<iTodoItem>();
+    // on(document, EVENT.CONTENT_LOADED, (e) => load());
+    // on(window, EVENT.HASHCHANGE, (e) => render());
+    // function indexOf(e: EventTarget | null): number {
+    //     const id = getId(e);
+    //     let res = -1;
+    //     let i = items.length;
+    //     while (id && i--) {
+    //         if (items[i].id == id) {
+    //             res = i;
+    //             break;
+    //         }
+    //     }
+    //     return res;
+    // }
+    // function getItem(e: EventTarget | HTMLElement | null): iTodoItem | null {
+    //     const index = indexOf(e);
+    //     if (index > -1)
+    //         return items[index];
+    //     else
+    //         return null;
+    // }
+    // function del(index: number) {
+    //     items[index].element.remove();
+    //     items.splice(index, 1);
+    // }
+    // function add(text: string, checked: boolean) {
+    //     items.push(TodoItem(list.element, text, checked));
+    // }
+    // function load() {
+    //     const json = localStorage.getItem(CONST.STORAGEKEY);
+    //     if (json) {
+    //         const obj = JSON.parse(json);
+    //         for (const p in obj) {
+    //             if (obj.hasOwnProperty(p))
+    //                 add(obj[p].name, obj[p].checked);
+    //         }
+    //     }
+    //     render();
+    // }
+    // function save() {
+    //     const obj: { [index: number]: { checked: boolean, name: string | null } } = {};
+    //     for (const key in items) {
+    //         const e = items[key];
+    //         obj[key] = { checked: e.toggle.checked, name: e.label.textContent };
+    //     }
+    //     localStorage.setItem(CONST.STORAGEKEY, JSON.stringify(obj));
+    //     render();
+    // }
+    // function render() {
+    //     const allCount = items.length;
+    //     let activeCount = 0;
+    //     items.forEach(e => { if (!e.toggle.checked) activeCount++; });
+    //     // list
+    //     items.forEach(e => e.render());
+    //     // main
+    //     main.render(activeCount, allCount);
+    //     // footer
+    //     footer.render(activeCount, allCount);
+    // }
+    // function addTodo(e: Event) {
+    //     if (e instanceof KeyboardEvent && e.keyCode != KEY.ENTER)
+    //         return;
+    //     let val = list.newTodo.value.trim();
+    //     if (val) {
+    //         add(val, false);
+    //         list.newTodo.value = STR.EMPTY;
+    //         save();
+    //     }
+    // }
+    // function delTodo(e: Event) {
+    //     const index = indexOf(e.target);
+    //     if (index > -1) {
+    //         del(index);
+    //         save();
+    //     }
+    // }
+    // function focusoutTodo(e: Event) {
+    //     const item = getItem(e.target);
+    //     if (item) {
+    //         item.update();
+    //         save();
+    //     }
+    // }
+    // function toggleTodo() {
+    //     save();
+    // }
+    // function keyupTodo(e: Event) {
+    //     const item = getItem(e.target);
+    //     if (item && e instanceof KeyboardEvent) {
+    //         if (e.keyCode == KEY.ENTER) {
+    //             if (item.editor.value.trim())
+    //                 item.update();
+    //             else
+    //                 delTodo(e);
+    //             save();
+    //         } else if (e.keyCode == KEY.ESC)
+    //             item.cancel();
+    //     }
+    // }
+    // function editTodo(e: Event) {
+    //     const item = getItem(e.target);
+    //     if (item)
+    //         item.edit();
+    // }
+    // function clearCompleted(e: Event) {
+    //     let n = 0;
+    //     const cnt = items.length;
+    //     for (let i = 0; i < cnt; i++) {
+    //         const e = items[n];
+    //         (e.toggle.checked) ? del(n) : n++;
+    //     }
+    //     save();
+    // }
+    // function toggleAll(e: Event) {
+    //     items.forEach(e => { e.toggle.checked = main.toggleAll.checked; });
+    //     save();
+    // }
 }
 exports.Controller = Controller;
 
-},{"./utl":4,"./view":5}],4:[function(require,module,exports){
+},{"./footer":4,"./header":5,"./main":6,"./storage":7}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utl_1 = require("./utl");
+const const_1 = require("./const");
+function Footer(app) {
+    const todoCount = utl_1.$(utl_1.dot("todo-count" /* TODOCOUNT */)).get();
+    const clearCompleted = utl_1.$(utl_1.dot("clear-completed" /* CLEARCOMPLETED */)).get();
+    const allFilter = utl_1.$(const_1.SELECTOR.HREF_ALL).get();
+    const activeFilter = utl_1.$(const_1.SELECTOR.HREF_ACTIVE).get();
+    const completedFilter = utl_1.$(const_1.SELECTOR.HREF_COMPLETED).get();
+    //---
+    utl_1.on(clearCompleted, "click" /* CLICK */, click.bind(this));
+    //---
+    function click(e) {
+        console.log(this);
+    }
+}
+exports.Footer = Footer;
+
+},{"./const":2,"./utl":9}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utl_1 = require("./utl");
+function Header(app) {
+    const newTodo = utl_1.$(utl_1.dot("new-todo" /* NEWTODO */)).get();
+    //---
+    utl_1.on(newTodo, "keyup" /* KEY_UP */, keyUp);
+    utl_1.on(newTodo, "focusout" /* FOCUSOUT */, addTodo);
+    //---
+    function keyUp(e) {
+        if (e.keyCode != 13 /* ENTER */)
+            return;
+        addTodo();
+    }
+    //---
+    function addTodo() {
+        const val = newTodo.value.trim();
+        if (val)
+            app.emit("add" /* ADD */, { check: false, title: val, id: utl_1.uuid() });
+        newTodo.value = "" /* EMPTY */;
+    }
+}
+exports.Header = Header;
+
+},{"./utl":9}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utl_1 = require("./utl");
+const todolist_1 = require("./todolist");
+function Main(app) {
+    const element = utl_1.$(utl_1.dot("main" /* MAIN */)).get();
+    const toggleCheckbox = utl_1.$(utl_1.dot("toggle-all" /* TOGGLEALL */)).get();
+    //---
+    todolist_1.Todolist(app);
+    utl_1.on(toggleCheckbox, "change" /* CHANGE */, toggleAll);
+    app.on("storage" /* STORAGE */, render);
+    //---
+    function toggleAll(e) {
+        app.emit("toggle-all" /* TOGGLE_ALL */);
+    }
+    //---
+    function render(items) {
+        //const check = items.reduce<boolean>((acc, val) => { return val.check || acc }, false)
+        let check = false;
+        for (const p in items) {
+            check = check || items[p].check;
+        }
+        toggleCheckbox.checked = check;
+    }
+}
+exports.Main = Main;
+
+},{"./todolist":8,"./utl":9}],7:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utl_1 = require("./utl");
+function Storage(app) {
+    //const items = new Array()
+    let items = {};
+    //---
+    utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, onLoad);
+    app.on("add" /* ADD */, addTodo);
+    app.on("update" /* UPDATE */, updateTodo);
+    app.on("toggle-all" /* TOGGLE_ALL */, toggleAll);
+    //---
+    function addTodo(e) {
+        // items.push(e)
+        items[e.id] = { check: e.check, title: e.title };
+        save();
+    }
+    //---
+    function updateTodo(e) {
+        // items.push(e)
+        items[e.id] = { check: e.check, title: e.title };
+        save();
+    }
+    //---
+    function toggleAll() {
+        // const check = items.reduce<boolean>((acc, val) => { return val.check || acc }, false)
+        // items.map((val) => { val.check = !check })
+        let check = false;
+        for (const p in items) {
+            check = check || items[p].check;
+        }
+        for (const p in items) {
+            items[p].check = !check;
+        }
+        save();
+    }
+    //---
+    function onLoad() {
+        const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
+        if (json) {
+            items = JSON.parse(json);
+            // for (const p in obj) {
+            //     items[obj[p].id] = {
+            //         title: obj[p].title,
+            //         check: obj[p].check,
+            //     }
+            // items.push({
+            //     title: obj[p].title,
+            //     check: obj[p].check,
+            //     id: obj[p].id
+            // })
+            //}
+        }
+        app.emit("storage" /* STORAGE */, items);
+    }
+    //---
+    function save() {
+        // const obj: { [index: number]: { check: boolean, title: string, id: string } } = {}
+        // for (const key in items) {
+        //     const e = items[key]
+        //     obj[key] = { check: e.check, title: e.title, id: e.id }
+        // }
+        localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));
+        app.emit("storage" /* STORAGE */, items);
+    }
+}
+exports.Storage = Storage;
+
+},{"./utl":9}],8:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utl_1 = require("./utl");
+function Todo(app, list, title, check, id) {
+    //const id = uuid()
+    const element = utl_1.Factory.li(list, id);
+    const view = utl_1.Factory.div(element, "view" /* VIEW */);
+    const toggle = utl_1.Factory.check(view, "toggle" /* TOGGLE */, check);
+    const label = utl_1.Factory.label(view, "" /* EMPTY */, title);
+    const destroy = utl_1.Factory.button(view, "destroy" /* DESTROY */);
+    const editor = utl_1.Factory.editor(element, "edit" /* EDIT */);
+    //---
+    utl_1.on(label, "dblclick" /* DBL_CLICK */, edit);
+    utl_1.on(editor, "focusout" /* FOCUSOUT */, update);
+    //---
+    function edit() {
+        editor.value = "" /* EMPTY */;
+        if (label.textContent)
+            editor.value = label.textContent;
+        utl_1.$(element).addClass("editing" /* EDITING */);
+        editor.focus();
+    }
+    //---
+    function update() {
+        if (editor.value.trim()) {
+            label.textContent = editor.value.trim();
+            utl_1.$(element).removeClass("editing" /* EDITING */);
+            app.emit("update" /* UPDATE */, { check: toggle.checked, title: label.textContent, id: id });
+        }
+    }
+}
+function Todolist(app) {
+    const element = utl_1.$(utl_1.dot("todo-list" /* TODOLIST */)).get();
+    //---
+    app.on("storage" /* STORAGE */, render);
+    //---
+    function render(items) {
+        element.innerHTML = "" /* EMPTY */;
+        for (const p in items) {
+            Todo(app, element, items[p].title, items[p].check, p);
+        }
+        //items.map((val) => { Todo(app, element, val.title, val.check, val.id) })
+    }
+}
+exports.Todolist = Todolist;
+
+},{"./utl":9}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function $(selector, scope = null) {
@@ -219,7 +431,29 @@ function $(selector, scope = null) {
                 return this;
             elements.forEach(e => { toggleClass(e, cls); });
             return this;
-        }
+        },
+        closest(selector) {
+            if (elements instanceof Element) {
+                let e = elements;
+                while (e) {
+                    if (e.matches && e.matches(selector))
+                        return e;
+                    e = e.parentNode;
+                }
+                return null;
+            }
+            //---
+            if (elements.length == 0)
+                return null;
+            //---    
+            let e = elements[0];
+            while (e) {
+                if (e.matches && e.matches(selector))
+                    return e;
+                e = e.parentNode;
+            }
+            return null;
+        },
     };
 }
 exports.$ = $;
@@ -347,131 +581,4 @@ function getId(e) {
 }
 exports.getId = getId;
 
-},{}],5:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const const_1 = require("./const");
-const utl_1 = require("./utl");
-function TodoItem(list, text, checked) {
-    const id = utl_1.uuid();
-    const element = utl_1.Factory.li(list, id);
-    const view = utl_1.Factory.div(element, "view" /* VIEW */);
-    const toggle = utl_1.Factory.check(view, "toggle" /* TOGGLE */, checked);
-    const label = utl_1.Factory.label(view, "" /* EMPTY */, text);
-    const destroy = utl_1.Factory.button(view, "destroy" /* DESTROY */);
-    const editor = utl_1.Factory.editor(element, "edit" /* EDIT */);
-    function update() {
-        if (editor.value.trim()) {
-            label.textContent = editor.value.trim();
-            utl_1.$(element).removeClass("editing" /* EDITING */);
-        }
-    }
-    function cancel() {
-        editor.value = "" /* EMPTY */;
-        utl_1.$(element).removeClass("editing" /* EDITING */);
-    }
-    function edit() {
-        editor.value = "" /* EMPTY */;
-        if (label.textContent)
-            editor.value = label.textContent;
-        utl_1.$(element).addClass("editing" /* EDITING */);
-        editor.focus();
-    }
-    function render() {
-        // completed
-        (toggle.checked) ? utl_1.$(element).addClass("completed" /* COMPLETED */) : utl_1.$(element).removeClass("completed" /* COMPLETED */);
-        // hidden
-        switch (window.location.hash) {
-            case "#/active" /* ACTIVE */:
-                (toggle.checked) ? utl_1.$(element).addClass("hidden" /* HIDDEN */) : utl_1.$(element).removeClass("hidden" /* HIDDEN */);
-                break;
-            case "#/completed" /* COMPLETED */:
-                (toggle.checked) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
-                break;
-            default:
-                utl_1.$(element).removeClass("hidden" /* HIDDEN */);
-                break;
-        }
-    }
-    return {
-        id,
-        element,
-        toggle,
-        label,
-        editor,
-        update,
-        edit,
-        cancel,
-        render
-    };
-}
-exports.TodoItem = TodoItem;
-function TodoList(app) {
-    const element = utl_1.$(utl_1.dot("todo-list" /* TODOLIST */)).get();
-    const newTodo = utl_1.$(utl_1.dot("new-todo" /* NEWTODO */)).get();
-    utl_1.on(newTodo, "keyup" /* KEY_UP */, app.addTodo);
-    utl_1.on(newTodo, "focusout" /* FOCUSOUT */, app.addTodo);
-    utl_1.delegate(element, utl_1.dot("edit" /* EDIT */), "focusout" /* FOCUSOUT */, app.focusoutTodo);
-    utl_1.delegate(element, utl_1.dot("destroy" /* DESTROY */), "click" /* CLICK */, app.delTodo);
-    utl_1.delegate(element, utl_1.dot("toggle" /* TOGGLE */), "change" /* CHANGE */, app.toggleTodo);
-    utl_1.delegate(element, utl_1.dot("edit" /* EDIT */), "keyup" /* KEY_UP */, app.keyupTodo);
-    utl_1.delegate(element, "label" /* LABEL */, "dblclick" /* DBL_CLICK */, app.editTodo);
-    return {
-        element,
-        newTodo
-    };
-}
-exports.TodoList = TodoList;
-function Main(app) {
-    const element = utl_1.$(utl_1.dot("main" /* MAIN */)).get();
-    const toggleAll = utl_1.$(utl_1.dot("toggle-all" /* TOGGLEALL */)).get();
-    utl_1.on(toggleAll, "change" /* CHANGE */, app.toggleAll);
-    function render(activeCount, allCount) {
-        toggleAll.checked = allCount > 0 && activeCount == 0;
-        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
-    }
-    return {
-        toggleAll,
-        render
-    };
-}
-exports.Main = Main;
-function Footer(app) {
-    const element = utl_1.$(utl_1.dot("footer" /* FOOTER */)).get();
-    const todoCount = utl_1.$(utl_1.dot("todo-count" /* TODOCOUNT */)).get();
-    const clearCompleted = utl_1.$(utl_1.dot("clear-completed" /* CLEARCOMPLETED */)).get();
-    const allFilter = utl_1.$(const_1.SELECTOR.HREF_ALL).get();
-    const activeFilter = utl_1.$(const_1.SELECTOR.HREF_ACTIVE).get();
-    const completedFilter = utl_1.$(const_1.SELECTOR.HREF_COMPLETED).get();
-    utl_1.on(clearCompleted, "click" /* CLICK */, app.clearCompleted);
-    function render(activeCount, allCount) {
-        // todo count
-        if (activeCount == 1)
-            todoCount.innerHTML = `${"<strong>" /* S1 */}${activeCount}${"</strong> item left" /* S2 */}`;
-        else
-            todoCount.innerHTML = `${"<strong>" /* S1 */}${activeCount}${"</strong> items left" /* S3 */}`;
-        // filter
-        utl_1.$("a" /* A */).removeClass("selected" /* SELECTED */);
-        switch (window.location.hash) {
-            case "#/active" /* ACTIVE */:
-                utl_1.$(activeFilter).addClass("selected" /* SELECTED */);
-                break;
-            case "#/completed" /* COMPLETED */:
-                utl_1.$(completedFilter).addClass("selected" /* SELECTED */);
-                break;
-            default:
-                utl_1.$(allFilter).addClass("selected" /* SELECTED */);
-                break;
-        }
-        // clear completed
-        (allCount - activeCount > 0) ? utl_1.$(clearCompleted).removeClass("hidden" /* HIDDEN */) : utl_1.$(clearCompleted).addClass("hidden" /* HIDDEN */);
-        // footer
-        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
-    }
-    return {
-        render
-    };
-}
-exports.Footer = Footer;
-
-},{"./const":2,"./utl":4}]},{},[1]);
+},{}]},{},[1]);
