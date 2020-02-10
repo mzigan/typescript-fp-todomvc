@@ -16,9 +16,8 @@ export function Main(app: iController) {
     }
     //---
     function render(items: iItem) {
-        //const check = items.reduce<boolean>((acc, val) => { return val.check || acc }, false)
-        let check = false
-        for (const p in items) { check = check || items[p].check }
+        let check = true
+        for (const p in items) { check = check && items[p].check }
         toggleCheckbox.checked = check
     }
 }

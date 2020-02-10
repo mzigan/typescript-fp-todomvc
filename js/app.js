@@ -218,7 +218,7 @@ function Header(app) {
     function addTodo() {
         const val = newTodo.value.trim();
         if (val)
-            app.emit("add" /* ADD */, { check: false, title: val, id: utl_1.uuid() });
+            app.emit("update" /* UPDATE */, { check: false, title: val, id: utl_1.uuid() });
         newTodo.value = "" /* EMPTY */;
     }
 }
@@ -242,10 +242,9 @@ function Main(app) {
     }
     //---
     function render(items) {
-        //const check = items.reduce<boolean>((acc, val) => { return val.check || acc }, false)
-        let check = false;
+        let check = true;
         for (const p in items) {
-            check = check || items[p].check;
+            check = check && items[p].check;
         }
         toggleCheckbox.checked = check;
     }
@@ -257,32 +256,33 @@ exports.Main = Main;
 Object.defineProperty(exports, "__esModule", { value: true });
 const utl_1 = require("./utl");
 function Storage(app) {
-    //const items = new Array()
     let items = {};
     //---
     utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, onLoad);
-    app.on("add" /* ADD */, addTodo);
     app.on("update" /* UPDATE */, updateTodo);
+    app.on("del" /* DEL */, delTodo);
+    app.on("toggle" /* TOGGLE */, toggleTodo);
     app.on("toggle-all" /* TOGGLE_ALL */, toggleAll);
     //---
-    function addTodo(e) {
-        // items.push(e)
+    function updateTodo(e) {
         items[e.id] = { check: e.check, title: e.title };
         save();
     }
     //---
-    function updateTodo(e) {
-        // items.push(e)
-        items[e.id] = { check: e.check, title: e.title };
+    function delTodo(id) {
+        delete items[id];
+        save();
+    }
+    //---
+    function toggleTodo(id) {
+        items[id].check = !items[id].check;
         save();
     }
     //---
     function toggleAll() {
-        // const check = items.reduce<boolean>((acc, val) => { return val.check || acc }, false)
-        // items.map((val) => { val.check = !check })
-        let check = false;
+        let check = true;
         for (const p in items) {
-            check = check || items[p].check;
+            check = check && items[p].check;
         }
         for (const p in items) {
             items[p].check = !check;
@@ -292,29 +292,12 @@ function Storage(app) {
     //---
     function onLoad() {
         const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
-        if (json) {
+        if (json)
             items = JSON.parse(json);
-            // for (const p in obj) {
-            //     items[obj[p].id] = {
-            //         title: obj[p].title,
-            //         check: obj[p].check,
-            //     }
-            // items.push({
-            //     title: obj[p].title,
-            //     check: obj[p].check,
-            //     id: obj[p].id
-            // })
-            //}
-        }
         app.emit("storage" /* STORAGE */, items);
     }
     //---
     function save() {
-        // const obj: { [index: number]: { check: boolean, title: string, id: string } } = {}
-        // for (const key in items) {
-        //     const e = items[key]
-        //     obj[key] = { check: e.check, title: e.title, id: e.id }
-        // }
         localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));
         app.emit("storage" /* STORAGE */, items);
     }
@@ -326,7 +309,6 @@ exports.Storage = Storage;
 Object.defineProperty(exports, "__esModule", { value: true });
 const utl_1 = require("./utl");
 function Todo(app, list, title, check, id) {
-    //const id = uuid()
     const element = utl_1.Factory.li(list, id);
     const view = utl_1.Factory.div(element, "view" /* VIEW */);
     const toggle = utl_1.Factory.check(view, "toggle" /* TOGGLE */, check);
@@ -336,6 +318,25 @@ function Todo(app, list, title, check, id) {
     //---
     utl_1.on(label, "dblclick" /* DBL_CLICK */, edit);
     utl_1.on(editor, "focusout" /* FOCUSOUT */, update);
+    utl_1.on(editor, "keyup" /* KEY_UP */, keyup);
+    utl_1.on(destroy, "click" /* CLICK */, del);
+    utl_1.on(toggle, "change" /* CHANGE */, toggleTodo);
+    //---
+    function keyup(e) {
+        if (e.keyCode == 27 /* ESC */) {
+            utl_1.$(element).removeClass("editing" /* EDITING */);
+        }
+        else if (e.keyCode == 13 /* ENTER */)
+            update();
+    }
+    //---
+    function toggleTodo() {
+        app.emit("toggle" /* TOGGLE */, id);
+    }
+    //---
+    function del() {
+        app.emit("del" /* DEL */, id);
+    }
     //---
     function edit() {
         editor.value = "" /* EMPTY */;
@@ -363,7 +364,6 @@ function Todolist(app) {
         for (const p in items) {
             Todo(app, element, items[p].title, items[p].check, p);
         }
-        //items.map((val) => { Todo(app, element, val.title, val.check, val.id) })
     }
 }
 exports.Todolist = Todolist;

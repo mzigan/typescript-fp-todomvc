@@ -14,8 +14,8 @@ export function Header(app: iController) {
     }
     //---
     function addTodo() {
-        const val = newTodo.value.trim();
-        if (val) app.emit(STORAGE.ADD, { check: false, title: val, id: uuid() })
+        const val = newTodo.value.trim()
+        if (val) app.emit(STORAGE.UPDATE, { check: false, title: val, id: uuid() })
         newTodo.value = STR.EMPTY
     }
 }

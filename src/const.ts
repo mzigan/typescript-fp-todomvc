@@ -18,9 +18,11 @@ export const enum CLASS {
 }
 
 export const enum STORAGE {
-    ADD = 'add',
+    //ADD = 'add',
     TOGGLE_ALL = 'toggle-all',
     UPDATE = 'update',
+    DEL = 'del',
+    TOGGLE = 'toggle',
 }
 
 export const enum CHANGE {
@@ -135,7 +137,7 @@ export const enum TPL {
 }
 
 export class SELECTOR {
-    static HREF_ALL = `${TPL.P1}${HASH.ALL}${TPL.P2}`;
-    static HREF_ACTIVE = `${TPL.P1}${HASH.ACTIVE}${TPL.P2}`;
-    static HREF_COMPLETED = `${TPL.P1}${HASH.COMPLETED}${TPL.P2}`;
+    static HREF_ALL = `${TPL.P1}${HASH.ALL}${TPL.P2}`
+    static HREF_ACTIVE = `${TPL.P1}${HASH.ACTIVE}${TPL.P2}`
+    static HREF_COMPLETED = `${TPL.P1}${HASH.COMPLETED}${TPL.P2}`
 }
