@@ -1,42 +1,42 @@
 import { iController, iItem } from './interface'
 import { on } from './utl'
-import { EVENT, CHANGE, STORAGE, CONST } from './const'
+import { EVENT, ITEMS, CONST } from './const'
 
 export function Storage(app: iController) {
     let items: iItem = {}
     //---
-    on(window, EVENT.HASHCHANGE, () => app.emit(CHANGE.STORAGE, items))
+    on(window, EVENT.HASHCHANGE, () => app.emit(ITEMS.CHANGE, items))
     //---
     on(document, EVENT.CONTENT_LOADED, () => {
         const json = localStorage.getItem(CONST.STORAGEKEY)
         if (json)
             items = JSON.parse(json)
-        app.emit(CHANGE.STORAGE, items)
+        app.emit(ITEMS.CHANGE, items)
     })
     //---
-    app.on(STORAGE.UPDATE, (e: { check: boolean, title: string, id: string }) => {
+    app.on(ITEMS.UPDATE, (e: { check: boolean, title: string, id: string }) => {
         items[e.id] = { check: e.check, title: e.title }
         save()
     })
     //---
-    app.on(STORAGE.DEL, (id: string) => {
+    app.on(ITEMS.DEL, (id: string) => {
         delete items[id]
         save()
     })
     //---
-    app.on(STORAGE.TOGGLE, (id: string) => {
+    app.on(ITEMS.TOGGLE, (id: string) => {
         items[id].check = !items[id].check
         save()
     })
     //---
-    app.on(STORAGE.TOGGLE_ALL, () => {
+    app.on(ITEMS.TOGGLE_ALL, () => {
         let check = true
         for (const p in items) { check = check && items[p].check }
         for (const p in items) { items[p].check = !check }
         save()
     })
     //---
-    app.on(STORAGE.CLEAR_COMPLETED, () => {
+    app.on(ITEMS.CLEAR_COMPLETED, () => {
         for (const p in items) {
             if (items[p].check)
                 delete items[p]
@@ -46,6 +46,6 @@ export function Storage(app: iController) {
     //---
     function save() {
         localStorage.setItem(CONST.STORAGEKEY, JSON.stringify(items))
-        app.emit(CHANGE.STORAGE, items)
+        app.emit(ITEMS.CHANGE, items)
     }
 }

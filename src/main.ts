@@ -1,6 +1,6 @@
 import { iController, iItem } from './interface'
 import { on, $, dot } from './utl'
-import { CLASS, CHANGE, STORAGE, EVENT } from './const'
+import { CLASS, ITEMS, EVENT } from './const'
 import { Todolist } from './todolist'
 
 export function Main(app: iController) {
@@ -8,8 +8,8 @@ export function Main(app: iController) {
     const toggleCheckbox = $(dot(CLASS.TOGGLEALL)).get() as HTMLInputElement
     //---
     Todolist(app)
-    on(toggleCheckbox, EVENT.CHANGE, () => app.emit(STORAGE.TOGGLE_ALL))
-    app.on(CHANGE.STORAGE, (items: iItem) => {
+    on(toggleCheckbox, EVENT.CHANGE, () => app.emit(ITEMS.TOGGLE_ALL))
+    app.on(ITEMS.CHANGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---

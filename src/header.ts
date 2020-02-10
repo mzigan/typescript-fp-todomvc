@@ -1,6 +1,6 @@
 import { iController } from './interface'
 import { on, $, uuid, dot } from './utl'
-import { CLASS, STORAGE, KEY, STR, EVENT } from './const'
+import { CLASS, ITEMS, KEY, STR, EVENT } from './const'
 
 export function Header(app: iController) {
     const newTodo = $(dot(CLASS.NEWTODO)).get() as HTMLInputElement
@@ -14,7 +14,7 @@ export function Header(app: iController) {
     //---
     function addTodo() {
         const val = newTodo.value.trim()
-        if (val) app.emit(STORAGE.UPDATE, { check: false, title: val, id: uuid() })
+        if (val) app.emit(ITEMS.UPDATE, { check: false, title: val, id: uuid() })
         newTodo.value = STR.EMPTY
     }
 }

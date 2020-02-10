@@ -17,16 +17,13 @@ export const enum CLASS {
     EMPTY = '',
 }
 
-export const enum STORAGE {
+export const enum ITEMS {
     TOGGLE_ALL = 'toggle-all',
     UPDATE = 'update',
     DEL = 'del',
     TOGGLE = 'toggle',
     CLEAR_COMPLETED = 'clear-completed',
-}
-
-export const enum CHANGE {
-    STORAGE = 'storage',
+    CHANGE = 'change',
 }
 
 export const enum CONST {

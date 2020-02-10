@@ -1,6 +1,6 @@
 import { iController, iItem } from './interface'
 import { on, $, dot } from './utl'
-import { SELECTOR, CLASS, CHANGE, STORAGE, EVENT, TAG, TPL, HASH } from './const'
+import { SELECTOR, CLASS, ITEMS, EVENT, TAG, TPL, HASH } from './const'
 
 export function Footer(this: any, app: iController) {
     const element = $(dot(CLASS.FOOTER)).get() as HTMLElement
@@ -10,9 +10,9 @@ export function Footer(this: any, app: iController) {
     const activeFilter = $(SELECTOR.HREF_ACTIVE).get() as HTMLHRElement
     const completedFilter = $(SELECTOR.HREF_COMPLETED).get() as HTMLHRElement
     //---
-    on(clearCompleted, EVENT.CLICK, () => app.emit(STORAGE.CLEAR_COMPLETED))
+    on(clearCompleted, EVENT.CLICK, () => app.emit(ITEMS.CLEAR_COMPLETED))
     //---
-    app.on(CHANGE.STORAGE, (items: iItem) => {
+    app.on(ITEMS.CHANGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---
