@@ -71,7 +71,7 @@ function Footer(app) {
     //---
     utl_1.on(clearCompleted, "click" /* CLICK */, () => app.emit("clear-completed" /* CLEAR_COMPLETED */));
     //---
-    app.on("storage" /* STORAGE */, (items) => {
+    app.on("change" /* CHANGE */, (items) => {
         let activeCount = 0;
         let allCount = 0;
         //---
@@ -141,7 +141,7 @@ function Main(app) {
     //---
     todolist_1.Todolist(app);
     utl_1.on(toggleCheckbox, "change" /* CHANGE */, () => app.emit("toggle-all" /* TOGGLE_ALL */));
-    app.on("storage" /* STORAGE */, (items) => {
+    app.on("change" /* CHANGE */, (items) => {
         let activeCount = 0;
         let allCount = 0;
         //---
@@ -164,13 +164,13 @@ const utl_1 = require("./utl");
 function Storage(app) {
     let items = {};
     //---
-    utl_1.on(window, "hashchange" /* HASHCHANGE */, () => app.emit("storage" /* STORAGE */, items));
+    utl_1.on(window, "hashchange" /* HASHCHANGE */, () => app.emit("change" /* CHANGE */, items));
     //---
     utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, () => {
         const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
         if (json)
             items = JSON.parse(json);
-        app.emit("storage" /* STORAGE */, items);
+        app.emit("change" /* CHANGE */, items);
     });
     //---
     app.on("update" /* UPDATE */, (e) => {
@@ -209,7 +209,7 @@ function Storage(app) {
     //---
     function save() {
         localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));
-        app.emit("storage" /* STORAGE */, items);
+        app.emit("change" /* CHANGE */, items);
     }
 }
 exports.Storage = Storage;
@@ -257,7 +257,7 @@ function Todo(app, list, title, check, id) {
 function Todolist(app) {
     const element = utl_1.$(utl_1.dot("todo-list" /* TODOLIST */)).get();
     //---
-    app.on("storage" /* STORAGE */, (items) => {
+    app.on("change" /* CHANGE */, (items) => {
         element.innerHTML = "" /* EMPTY */;
         for (const p in items) {
             switch (window.location.hash) {

@@ -8,6 +8,7 @@ export function Main(app: iController) {
     const toggleCheckbox = $(dot(CLASS.TOGGLEALL)).get() as HTMLInputElement
     //---
     Todolist(app)
+    //---
     on(toggleCheckbox, EVENT.CHANGE, () => app.emit(ITEMS.TOGGLE_ALL))
     app.on(ITEMS.CHANGE, (items: iItem) => {
         let activeCount = 0
