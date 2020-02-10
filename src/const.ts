@@ -23,6 +23,7 @@ export const enum STORAGE {
     UPDATE = 'update',
     DEL = 'del',
     TOGGLE = 'toggle',
+    CLEAR_COMPLETED = 'clear-completed',
 }
 
 export const enum CHANGE {

@@ -16,8 +16,16 @@ export function Main(app: iController) {
     }
     //---
     function render(items: iItem) {
-        let check = true
-        for (const p in items) { check = check && items[p].check }
-        toggleCheckbox.checked = check
+        let activeCount = 0
+        let allCount = 0
+        //---
+        for (const p in items) {
+            if (!items[p].check)
+                activeCount++
+            allCount++
+        }
+        //---
+        (allCount > 0) ? $(element).removeClass(CLASS.HIDDEN) : $(element).addClass(CLASS.HIDDEN)
+        toggleCheckbox.checked = allCount > 0 && activeCount == 0
     }
 }

@@ -55,7 +55,7 @@ function Controller() {
         //---
         h.forEach(handler => { handler(params); });
     }
-    //const main = Main(ictrl);
+    // const main = Main(ictrl);
     // const list = TodoList(ictrl);
     // const footer = Footer(ictrl);
     // const items = Array<iTodoItem>();
@@ -185,6 +185,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utl_1 = require("./utl");
 const const_1 = require("./const");
 function Footer(app) {
+    const element = utl_1.$(utl_1.dot("footer" /* FOOTER */)).get();
     const todoCount = utl_1.$(utl_1.dot("todo-count" /* TODOCOUNT */)).get();
     const clearCompleted = utl_1.$(utl_1.dot("clear-completed" /* CLEARCOMPLETED */)).get();
     const allFilter = utl_1.$(const_1.SELECTOR.HREF_ALL).get();
@@ -192,9 +193,43 @@ function Footer(app) {
     const completedFilter = utl_1.$(const_1.SELECTOR.HREF_COMPLETED).get();
     //---
     utl_1.on(clearCompleted, "click" /* CLICK */, click.bind(this));
+    app.on("storage" /* STORAGE */, render);
     //---
     function click(e) {
-        console.log(this);
+        app.emit("clear-completed" /* CLEAR_COMPLETED */);
+    }
+    //---
+    function render(items) {
+        let activeCount = 0;
+        let allCount = 0;
+        //---
+        for (const p in items) {
+            if (!items[p].check)
+                activeCount++;
+            allCount++;
+        }
+        // todo count
+        if (activeCount == 1)
+            todoCount.innerHTML = `${"<strong>" /* S1 */}${activeCount}${"</strong> item left" /* S2 */}`;
+        else
+            todoCount.innerHTML = `${"<strong>" /* S1 */}${activeCount}${"</strong> items left" /* S3 */}`;
+        // filter
+        utl_1.$("a" /* A */).removeClass("selected" /* SELECTED */);
+        switch (window.location.hash) {
+            case "#/active" /* ACTIVE */:
+                utl_1.$(activeFilter).addClass("selected" /* SELECTED */);
+                break;
+            case "#/completed" /* COMPLETED */:
+                utl_1.$(completedFilter).addClass("selected" /* SELECTED */);
+                break;
+            default:
+                utl_1.$(allFilter).addClass("selected" /* SELECTED */);
+                break;
+        }
+        // clear completed
+        (allCount - activeCount > 0) ? utl_1.$(clearCompleted).removeClass("hidden" /* HIDDEN */) : utl_1.$(clearCompleted).addClass("hidden" /* HIDDEN */);
+        // footer
+        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
     }
 }
 exports.Footer = Footer;
@@ -242,11 +277,17 @@ function Main(app) {
     }
     //---
     function render(items) {
-        let check = true;
+        let activeCount = 0;
+        let allCount = 0;
+        //---
         for (const p in items) {
-            check = check && items[p].check;
+            if (!items[p].check)
+                activeCount++;
+            allCount++;
         }
-        toggleCheckbox.checked = check;
+        //---
+        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
+        toggleCheckbox.checked = allCount > 0 && activeCount == 0;
     }
 }
 exports.Main = Main;
@@ -259,10 +300,12 @@ function Storage(app) {
     let items = {};
     //---
     utl_1.on(document, "DOMContentLoaded" /* CONTENT_LOADED */, onLoad);
+    utl_1.on(window, "hashchange" /* HASHCHANGE */, hashcange);
     app.on("update" /* UPDATE */, updateTodo);
     app.on("del" /* DEL */, delTodo);
     app.on("toggle" /* TOGGLE */, toggleTodo);
     app.on("toggle-all" /* TOGGLE_ALL */, toggleAll);
+    app.on("clear-completed" /* CLEAR_COMPLETED */, clearCompleted);
     //---
     function updateTodo(e) {
         items[e.id] = { check: e.check, title: e.title };
@@ -290,6 +333,14 @@ function Storage(app) {
         save();
     }
     //---
+    function clearCompleted() {
+        for (const p in items) {
+            if (items[p].check)
+                delete items[p];
+        }
+        save();
+    }
+    //---
     function onLoad() {
         const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
         if (json)
@@ -299,6 +350,10 @@ function Storage(app) {
     //---
     function save() {
         localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));
+        app.emit("storage" /* STORAGE */, items);
+    }
+    //---
+    function hashcange() {
         app.emit("storage" /* STORAGE */, items);
     }
 }
@@ -316,10 +371,10 @@ function Todo(app, list, title, check, id) {
     const destroy = utl_1.Factory.button(view, "destroy" /* DESTROY */);
     const editor = utl_1.Factory.editor(element, "edit" /* EDIT */);
     //---
-    utl_1.on(label, "dblclick" /* DBL_CLICK */, edit);
-    utl_1.on(editor, "focusout" /* FOCUSOUT */, update);
+    utl_1.on(label, "dblclick" /* DBL_CLICK */, editTodo);
+    utl_1.on(editor, "focusout" /* FOCUSOUT */, updateTodo);
     utl_1.on(editor, "keyup" /* KEY_UP */, keyup);
-    utl_1.on(destroy, "click" /* CLICK */, del);
+    utl_1.on(destroy, "click" /* CLICK */, delTodo);
     utl_1.on(toggle, "change" /* CHANGE */, toggleTodo);
     //---
     function keyup(e) {
@@ -327,18 +382,18 @@ function Todo(app, list, title, check, id) {
             utl_1.$(element).removeClass("editing" /* EDITING */);
         }
         else if (e.keyCode == 13 /* ENTER */)
-            update();
+            updateTodo();
     }
     //---
     function toggleTodo() {
         app.emit("toggle" /* TOGGLE */, id);
     }
     //---
-    function del() {
+    function delTodo() {
         app.emit("del" /* DEL */, id);
     }
     //---
-    function edit() {
+    function editTodo() {
         editor.value = "" /* EMPTY */;
         if (label.textContent)
             editor.value = label.textContent;
@@ -346,7 +401,7 @@ function Todo(app, list, title, check, id) {
         editor.focus();
     }
     //---
-    function update() {
+    function updateTodo() {
         if (editor.value.trim()) {
             label.textContent = editor.value.trim();
             utl_1.$(element).removeClass("editing" /* EDITING */);
@@ -362,7 +417,18 @@ function Todolist(app) {
     function render(items) {
         element.innerHTML = "" /* EMPTY */;
         for (const p in items) {
-            Todo(app, element, items[p].title, items[p].check, p);
+            switch (window.location.hash) {
+                case "#/active" /* ACTIVE */:
+                    if (!items[p].check)
+                        Todo(app, element, items[p].title, items[p].check, p);
+                    break;
+                case "#/completed" /* COMPLETED */:
+                    if (items[p].check)
+                        Todo(app, element, items[p].title, items[p].check, p);
+                    break;
+                default:
+                    Todo(app, element, items[p].title, items[p].check, p);
+            }
         }
     }
 }

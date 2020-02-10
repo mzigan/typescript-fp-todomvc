@@ -50,7 +50,7 @@ export function Controller(): void {
     }
 
 
-    //const main = Main(ictrl);
+    // const main = Main(ictrl);
     // const list = TodoList(ictrl);
     // const footer = Footer(ictrl);
     // const items = Array<iTodoItem>();

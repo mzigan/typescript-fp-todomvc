@@ -1,7 +1,6 @@
 import { iController, iTodoItem, iItem } from './interface'
 import { Factory, on, delegate, $, uuid, dot } from './utl'
-import { CLASS, CHANGE, STORAGE, TAG, KEY, STR, CONST, EVENT } from './const'
-
+import { CLASS, CHANGE, STORAGE, TAG, KEY, STR, CONST, EVENT, HASH } from './const'
 
 function Todo(app: iController, list: HTMLUListElement, title: string, check: boolean, id: string) {
     const element = Factory.li(list, id)
@@ -11,28 +10,28 @@ function Todo(app: iController, list: HTMLUListElement, title: string, check: bo
     const destroy = Factory.button(view, CLASS.DESTROY)
     const editor = Factory.editor(element, CLASS.EDIT)
     //---
-    on(label, EVENT.DBL_CLICK, edit)
-    on(editor, EVENT.FOCUSOUT, update)
+    on(label, EVENT.DBL_CLICK, editTodo)
+    on(editor, EVENT.FOCUSOUT, updateTodo)
     on(editor, EVENT.KEY_UP, keyup)
-    on(destroy, EVENT.CLICK, del)
+    on(destroy, EVENT.CLICK, delTodo)
     on(toggle, EVENT.CHANGE, toggleTodo)
     //---
     function keyup(e: Event) {
         if ((e as KeyboardEvent).keyCode == KEY.ESC) {
             $(element).removeClass(CLASS.EDITING)
         } else if ((e as KeyboardEvent).keyCode == KEY.ENTER)
-            update()
+            updateTodo()
     }
     //---
     function toggleTodo() {
         app.emit(STORAGE.TOGGLE, id)
     }
     //---
-    function del() {
+    function delTodo() {
         app.emit(STORAGE.DEL, id)
     }
     //---
-    function edit() {
+    function editTodo() {
         editor.value = STR.EMPTY
         if (label.textContent)
             editor.value = label.textContent
@@ -40,7 +39,7 @@ function Todo(app: iController, list: HTMLUListElement, title: string, check: bo
         editor.focus()
     }
     //---
-    function update() {
+    function updateTodo() {
         if (editor.value.trim()) {
             label.textContent = editor.value.trim()
             $(element).removeClass(CLASS.EDITING)
@@ -56,6 +55,17 @@ export function Todolist(this: any, app: iController) {
     //---
     function render(items: iItem) {
         element.innerHTML = STR.EMPTY
-        for (const p in items) { Todo(app, element, items[p].title, items[p].check, p) }
+        for (const p in items) {
+            switch (window.location.hash) {
+                case HASH.ACTIVE:
+                    if (!items[p].check) Todo(app, element, items[p].title, items[p].check, p)
+                    break
+                case HASH.COMPLETED:
+                    if (items[p].check) Todo(app, element, items[p].title, items[p].check, p)
+                    break
+                default:
+                    Todo(app, element, items[p].title, items[p].check, p)            
+            }
+        }
     }
 }
