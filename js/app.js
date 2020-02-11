@@ -99,9 +99,15 @@ function Footer(app) {
                 break;
         }
         // clear completed
-        (allCount - activeCount > 0) ? utl_1.$(clearCompleted).removeClass("hidden" /* HIDDEN */) : utl_1.$(clearCompleted).addClass("hidden" /* HIDDEN */);
+        if (allCount - activeCount > 0)
+            utl_1.$(clearCompleted).removeClass("hidden" /* HIDDEN */);
+        else
+            utl_1.$(clearCompleted).addClass("hidden" /* HIDDEN */);
         // footer
-        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
+        if (allCount > 0)
+            utl_1.$(element).removeClass("hidden" /* HIDDEN */);
+        else
+            utl_1.$(element).addClass("hidden" /* HIDDEN */);
     });
 }
 exports.Footer = Footer;
@@ -140,6 +146,7 @@ function Main(app) {
     const toggleCheckbox = utl_1.$(utl_1.dot("toggle-all" /* TOGGLEALL */)).get();
     //---
     todolist_1.Todolist(app);
+    //---
     utl_1.on(toggleCheckbox, "change" /* CHANGE */, () => app.emit("toggle-all" /* TOGGLE_ALL */));
     app.on("change" /* CHANGE */, (items) => {
         let activeCount = 0;
@@ -151,7 +158,10 @@ function Main(app) {
             allCount++;
         }
         //---
-        (allCount > 0) ? utl_1.$(element).removeClass("hidden" /* HIDDEN */) : utl_1.$(element).addClass("hidden" /* HIDDEN */);
+        if (allCount > 0)
+            utl_1.$(element).removeClass("hidden" /* HIDDEN */);
+        else
+            utl_1.$(element).addClass("hidden" /* HIDDEN */);
         toggleCheckbox.checked = allCount > 0 && activeCount == 0;
     });
 }
@@ -373,12 +383,18 @@ exports.on = on;
 function delegate(target, selector, event, func, capture = false) {
     const dispatchEvent = (e) => {
         const potentialElements = target.querySelectorAll(selector);
-        for (let i = 0; i < potentialElements.length; i++) {
-            if (potentialElements[i] === e.target) {
+        for (const p of potentialElements) { // для NodeList  for of должен работать https://developer.mozilla.org/ru/docs/Web/API/NodeList
+            if (p === e.target) {
                 func.call(e.target, e);
                 break;
             }
         }
+        // for (let i = 0; i < potentialElements.length; i++) {
+        //     if (potentialElements[i] === e.target) {
+        //         func.call(e.target, e)
+        //         break
+        //     }
+        // }
     };
     target.addEventListener(event, dispatchEvent, capture);
 }
@@ -388,11 +404,15 @@ function hasClass(elem, cls) {
         return false;
     let res = false;
     const arr = cls.split(" " /* SPACE */);
-    for (let i = 0; i < arr.length; i++) {
-        res = elem.classList ? elem.classList.contains(arr[i]) : new RegExp('\\b' + arr[i] + '\\b').test(elem.className);
+    for (const p of arr) {
+        res = elem.classList ? elem.classList.contains(p) : new RegExp('\\b' + p + '\\b').test(elem.className);
         if (!res)
             break;
     }
+    // for (let i = 0; i < arr.length; i++) {
+    //     res = elem.classList ? elem.classList.contains(arr[i]) : new RegExp('\\b' + arr[i] + '\\b').test(elem.className)
+    //     if (!res) break
+    // }
     return res;
 }
 function removeClass(elem, cls) {
@@ -463,20 +483,13 @@ function dot(cls) {
 }
 exports.dot = dot;
 // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-const s = new Array();
-for (let i = 0; i < 256; i++) {
-    s[i] = (i < 16 ? '0' : '') + (i).toString(16);
-}
 function uuid() {
-    let d0 = Math.random() * 0xffffffff | 0;
-    let d1 = Math.random() * 0xffffffff | 0;
-    let d2 = Math.random() * 0xffffffff | 0;
-    let d3 = Math.random() * 0xffffffff | 0;
-    return s[d0 & 0xff] + s[d0 >> 8 & 0xff] + s[d0 >> 16 & 0xff] + s[d0 >> 24 & 0xff] + '-' +
-        s[d1 & 0xff] + s[d1 >> 8 & 0xff] + '-' +
-        s[d1 >> 16 & 0x0f | 0x40] + s[d1 >> 24 & 0xff] + '-' +
-        s[d2 & 0x3f | 0x80] + s[d2 >> 8 & 0xff] + '-' +
-        s[d2 >> 16 & 0xff] + s[d2 >> 24 & 0xff] + s[d3 & 0xff] + s[d3 >> 8 & 0xff] + s[d3 >> 16 & 0xff] + s[d3 >> 24 & 0xff];
+    return ('10000000-1000-4000-8000-100000000000').replace(/[018]/g, c => {
+        const n = parseInt(c);
+        return (n ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> n / 4).toString(16);
+    }
+    //(parseInt(c) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> parseInt(c) / 4).toString(16)
+    );
 }
 exports.uuid = uuid;
 function getId(e) {

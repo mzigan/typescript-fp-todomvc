@@ -20,7 +20,10 @@ export function Main(app: iController) {
             allCount++
         }
         //---
-        (allCount > 0) ? $(element).removeClass(CLASS.HIDDEN) : $(element).addClass(CLASS.HIDDEN)
+        if (allCount > 0)
+            $(element).removeClass(CLASS.HIDDEN)
+        else
+            $(element).addClass(CLASS.HIDDEN)
         toggleCheckbox.checked = allCount > 0 && activeCount == 0
     })
 }

@@ -93,12 +93,18 @@ export function on(elem: Element | Window | Document, event: string, func: Event
 export function delegate(target: Element | Document, selector: string, event: string, func: EventListener, capture: boolean = false) {
     const dispatchEvent = (e: Event): void => {
         const potentialElements = target.querySelectorAll(selector)
-        for (let i = 0; i < potentialElements.length; i++) {
-            if (potentialElements[i] === e.target) {
+        for (const p of potentialElements) { // для NodeList  for of должен работать https://developer.mozilla.org/ru/docs/Web/API/NodeList
+            if (p === e.target) {
                 func.call(e.target, e)
                 break
             }
         }
+        // for (let i = 0; i < potentialElements.length; i++) {
+        //     if (potentialElements[i] === e.target) {
+        //         func.call(e.target, e)
+        //         break
+        //     }
+        // }
     }
     target.addEventListener(event, dispatchEvent, capture)
 }
@@ -108,10 +114,14 @@ function hasClass(elem: Element | null, cls: string): boolean {
         return false
     let res = false
     const arr = cls.split(STR.SPACE)
-    for (let i = 0; i < arr.length; i++) {
-        res = elem.classList ? elem.classList.contains(arr[i]) : new RegExp('\\b' + arr[i] + '\\b').test(elem.className)
+    for (const p of arr) {
+        res = elem.classList ? elem.classList.contains(p) : new RegExp('\\b' + p + '\\b').test(elem.className)
         if (!res) break
     }
+    // for (let i = 0; i < arr.length; i++) {
+    //     res = elem.classList ? elem.classList.contains(arr[i]) : new RegExp('\\b' + arr[i] + '\\b').test(elem.className)
+    //     if (!res) break
+    // }
     return res
 }
 
@@ -190,18 +200,11 @@ export function dot(cls: string): string {
 }
 
 // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-const s = new Array<string>()
-for (let i = 0; i < 256; i++) { s[i] = (i < 16 ? '0' : '') + (i).toString(16) }
 export function uuid() {
-    let d0 = Math.random() * 0xffffffff | 0
-    let d1 = Math.random() * 0xffffffff | 0
-    let d2 = Math.random() * 0xffffffff | 0
-    let d3 = Math.random() * 0xffffffff | 0
-    return s[d0 & 0xff] + s[d0 >> 8 & 0xff] + s[d0 >> 16 & 0xff] + s[d0 >> 24 & 0xff] + '-' +
-        s[d1 & 0xff] + s[d1 >> 8 & 0xff] + '-' +
-        s[d1 >> 16 & 0x0f | 0x40] + s[d1 >> 24 & 0xff] + '-' +
-        s[d2 & 0x3f | 0x80] + s[d2 >> 8 & 0xff] + '-' +
-        s[d2 >> 16 & 0xff] + s[d2 >> 24 & 0xff] + s[d3 & 0xff] + s[d3 >> 8 & 0xff] + s[d3 >> 16 & 0xff] + s[d3 >> 24 & 0xff]
+    return ('10000000-1000-4000-8000-100000000000').replace(/[018]/g, c => {
+        const n = parseInt(c)
+        return (n ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> n / 4).toString(16)
+    })
 }
 
 export function getId(e: EventTarget | HTMLElement | null): string | undefined {

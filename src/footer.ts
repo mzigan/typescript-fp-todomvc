@@ -40,8 +40,14 @@ export function Footer(this: any, app: iController) {
                 break
         }
         // clear completed
-        (allCount - activeCount > 0) ? $(clearCompleted).removeClass(CLASS.HIDDEN) : $(clearCompleted).addClass(CLASS.HIDDEN);
+        if (allCount - activeCount > 0)
+            $(clearCompleted).removeClass(CLASS.HIDDEN)
+        else
+            $(clearCompleted).addClass(CLASS.HIDDEN)
         // footer
-        (allCount > 0) ? $(element).removeClass(CLASS.HIDDEN) : $(element).addClass(CLASS.HIDDEN)
+        if (allCount > 0)
+            $(element).removeClass(CLASS.HIDDEN)
+        else
+            $(element).addClass(CLASS.HIDDEN)
     })
 }
