@@ -9,3 +9,7 @@ export interface iItem {
         title: string
     }
 }
+
+export interface iHandler{
+    [key: string]: Function[]
+}

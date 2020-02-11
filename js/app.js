@@ -22,7 +22,7 @@ const header_1 = require("./header");
 const main_1 = require("./main");
 const footer_1 = require("./footer");
 function Controller() {
-    const handlerMap = new Map();
+    const handlerMap = {};
     //---
     const ictrl = {
         emit,
@@ -35,19 +35,19 @@ function Controller() {
     footer_1.Footer(ictrl);
     //---
     function on(action, handler) {
-        const h = handlerMap.get(action);
+        const h = handlerMap[action];
         //---
         if (h)
             h.push(handler);
         else {
             let a = [];
             a.push(handler);
-            handlerMap.set(action, a);
+            handlerMap[action] = a;
         }
     }
     //---
     function emit(action, params) {
-        const h = handlerMap.get(action);
+        const h = handlerMap[action];
         if (!h)
             return;
         //---
@@ -55,6 +55,38 @@ function Controller() {
     }
 }
 exports.Controller = Controller;
+// export function Controller(): void {
+//     const handlerMap = new Map<string, Function[]>()
+//     //---
+//     const ictrl = {
+//         emit,
+//         on,
+//     } as iController
+//     //---
+//     Storage(ictrl)
+//     Header(ictrl)
+//     Main(ictrl)
+//     Footer(ictrl)
+//     //---
+//     function on(action: string, handler: Function) {
+//         const h = handlerMap.get(action)
+//         //---
+//         if (h)
+//             h.push(handler)
+//         else {
+//             let a = []
+//             a.push(handler)
+//             handlerMap.set(action, a)
+//         }
+//     }
+//     //---
+//     function emit(action: string, params: any) {
+//         const h = handlerMap.get(action)
+//         if (!h) return
+//         //---
+//         h.forEach(handler => { handler(params) })
+//     }
+// }
 
 },{"./footer":4,"./header":5,"./main":6,"./storage":7}],4:[function(require,module,exports){
 "use strict";
@@ -487,9 +519,7 @@ function uuid() {
     return ('10000000-1000-4000-8000-100000000000').replace(/[018]/g, c => {
         const n = parseInt(c);
         return (n ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> n / 4).toString(16);
-    }
-    //(parseInt(c) ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> parseInt(c) / 4).toString(16)
-    );
+    });
 }
 exports.uuid = uuid;
 function getId(e) {
