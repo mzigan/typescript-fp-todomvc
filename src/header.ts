@@ -1,8 +1,9 @@
 import { iController } from './interface'
 import { on, $, uuid, dot } from './utl'
 import { CLASS, ITEMS, KEY, STR, EVENT } from './const'
+import { app } from './app'
 
-export function Header(app: iController) {
+export function Header() {
     const newTodo = $(dot(CLASS.NEWTODO)).get() as HTMLInputElement
     //---
     on(newTodo, EVENT.FOCUSOUT, addTodo)

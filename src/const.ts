@@ -40,6 +40,7 @@ export const enum STR {
     SPACE = ' ',
     EMPTY = '',
     DOT = '.',
+    PX = 'px',
 }
 
 export const enum EVENT {

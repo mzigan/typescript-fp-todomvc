@@ -1,8 +1,9 @@
-import { iController, iItem } from './interface'
+import { iItem } from './interface'
 import { on, $, dot } from './utl'
 import { SELECTOR, CLASS, ITEMS, EVENT, TAG, TPL, HASH } from './const'
+import { app } from './app'
 
-export function Footer(this: any, app: iController) {
+export function Footer(this: any) {
     const element = $(dot(CLASS.FOOTER)).get() as HTMLElement
     const todoCount = $(dot(CLASS.TODOCOUNT)).get() as HTMLSpanElement
     const clearCompleted = $(dot(CLASS.CLEARCOMPLETED)).get() as HTMLButtonElement
@@ -12,7 +13,7 @@ export function Footer(this: any, app: iController) {
     //---
     on(clearCompleted, EVENT.CLICK, () => app.emit(ITEMS.CLEAR_COMPLETED))
     //---
-    app.on(ITEMS.CHANGE, (items: iItem) => {
+    app.link(ITEMS.CHANGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---

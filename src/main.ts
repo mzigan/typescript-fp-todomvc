@@ -2,15 +2,16 @@ import { iController, iItem } from './interface'
 import { on, $, dot } from './utl'
 import { CLASS, ITEMS, EVENT } from './const'
 import { Todolist } from './todolist'
+import { app } from './app'
 
-export function Main(app: iController) {
+export function Main() {
     const element = $(dot(CLASS.MAIN)).get() as HTMLElement
     const toggleCheckbox = $(dot(CLASS.TOGGLEALL)).get() as HTMLInputElement
     //---
-    Todolist(app)
+    Todolist()
     //---
     on(toggleCheckbox, EVENT.CHANGE, () => app.emit(ITEMS.TOGGLE_ALL))
-    app.on(ITEMS.CHANGE, (items: iItem) => {
+    app.link(ITEMS.CHANGE, (items: iItem) => {
         let activeCount = 0
         let allCount = 0
         //---

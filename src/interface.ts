@@ -1,6 +1,6 @@
 export interface iController {
     emit(action: string, params?: any): void
-    on(action: string, handler: Function): void
+    link(action: string, handler: Function): void
 }
 
 export interface iItem {
@@ -11,5 +11,5 @@ export interface iItem {
 }
 
 export interface iHandler{
-    [key: string]: Function[]
+    
 }
