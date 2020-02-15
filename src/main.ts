@@ -1,4 +1,4 @@
-import { iController, iItem } from './interface'
+import { iApp, iItem } from './interface'
 import { on, $, dot } from './utl'
 import { CLASS, ITEMS, EVENT } from './const'
 import { Todolist } from './todolist'

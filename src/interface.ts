@@ -1,4 +1,4 @@
-export interface iController {
+export interface iApp {
     emit(action: string, params?: any): void
     link(action: string, handler: Function): void
 }
@@ -8,8 +8,4 @@ export interface iItem {
         check: boolean,
         title: string
     }
-}
-
-export interface iHandler{
-    
 }

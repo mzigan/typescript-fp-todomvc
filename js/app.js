@@ -173,7 +173,13 @@ const app_1 = require("./app");
 function Storage() {
     let items = {};
     //---
+    const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
+    if (json)
+        items = JSON.parse(json);
+    app_1.app.emit("change" /* CHANGE */, items);
+    //---
     utl_1.on(window, "hashchange" /* HASHCHANGE */, () => app_1.app.emit("change" /* CHANGE */, items));
+    //---
     app_1.app.link("update" /* UPDATE */, (e) => {
         items[e.id] = { check: e.check, title: e.title };
         save();
@@ -207,11 +213,6 @@ function Storage() {
         }
         save();
     });
-    //---
-    const json = localStorage.getItem("todos_typescript5" /* STORAGEKEY */);
-    if (json)
-        items = JSON.parse(json);
-    app_1.app.emit("change" /* CHANGE */, items);
     //---
     function save() {
         localStorage.setItem("todos_typescript5" /* STORAGEKEY */, JSON.stringify(items));

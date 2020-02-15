@@ -1,4 +1,4 @@
-import { iController, iItem } from './interface'
+import { iApp, iItem } from './interface'
 import { on } from './utl'
 import { EVENT, ITEMS, CONST } from './const'
 import { app } from './app'
@@ -6,7 +6,13 @@ import { app } from './app'
 export function Storage() {
     let items: iItem = {}
     //---
+    const json = localStorage.getItem(CONST.STORAGEKEY)
+    if (json)
+        items = JSON.parse(json)
+    app.emit(ITEMS.CHANGE, items)
+    //---
     on(window, EVENT.HASHCHANGE, () => app.emit(ITEMS.CHANGE, items))
+    //---
     app.link(ITEMS.UPDATE, (e: { check: boolean, title: string, id: string }) => {
         items[e.id] = { check: e.check, title: e.title }
         save()
@@ -36,11 +42,6 @@ export function Storage() {
         }
         save()
     })
-    //---
-    const json = localStorage.getItem(CONST.STORAGEKEY)
-    if (json)
-        items = JSON.parse(json)
-    app.emit(ITEMS.CHANGE, items)
     //---
     function save() {
         localStorage.setItem(CONST.STORAGEKEY, JSON.stringify(items))
